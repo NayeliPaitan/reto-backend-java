@@ -301,3 +301,20 @@ Cubren: reglas de transición de estados, servicio de pedidos (con stock, sin st
 | Un servicio se reinicia al arrancar | Esperar: depende de que su base de datos esté `healthy` |
 | Error de esquema o columnas tras actualizar el código | Recrear las bases: `docker compose down -v && docker compose up --build` |
 | Puerto ocupado | Cambiar el mapeo de puertos en `docker-compose.yml` (8080 y 8180) |
+
+---
+
+## 👩‍💻 Desarrollado por
+
+**Nayeli Alison Paitan Ramirez**  
+*Desarrolladora Backend / Full Stack*
+
+Proyecto desarrollado como demostración técnica de una arquitectura de microservicios con Java 17, Spring Boot, API Gateway, OAuth 2.0 y Docker[cite: 2].
+
+📬 **¿Te interesa mi perfil o buscas sumar talento a tu equipo?**
+* **LinkedIn:** [Nayeli Alison Paitan Ramirez](https://www.linkedin.com/in/nayeli-alison-paitan-ramirez/)
+* **WhatsApp:** [+51 950 595 875](https://wa.me/51950595875)
+* **Correo:** [paitannayeli@gmail.com](mailto:paitannayeli@gmail.com)
+* **GitHub:** [@NayeliPaitan](https://github.com/NayeliPaitan)
+
+¡Estoy abierta a nuevas oportunidades laborales y proyectos profesionales! 🚀
