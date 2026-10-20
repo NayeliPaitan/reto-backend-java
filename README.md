@@ -307,7 +307,7 @@ Cubren: reglas de transición de estados, servicio de pedidos (con stock, sin st
 ## 👩‍💻 Desarrollado por
 
 **Nayeli Alison Paitan Ramirez**  
-*Desarrolladora Backend / Full Stack*
+*Desarrolladora Full Stack*
 
 Proyecto desarrollado como demostración técnica de una arquitectura de microservicios con Java 17, Spring Boot, API Gateway, OAuth 2.0 y Docker[cite: 2].
 
