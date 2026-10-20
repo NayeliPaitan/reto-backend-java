@@ -1,6 +1,4 @@
-# Opcional, SOLO para desarrollo local (no usar en la entrega/produccion):
-#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
-# Publica en el host los servicios internos y las bases de datos para depurarlos.
+# Opcional, SOLO para desarrollo local (no usar en la produccion)
 services:
   orders-db:
     ports:
