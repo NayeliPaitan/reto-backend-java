@@ -1,0 +1,36 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/orders_db}
+    username: ${SPRING_DATASOURCE_USERNAME:orders_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:orders_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+inventory:
+  service:
+    url: ${INVENTORY_SERVICE_URL:http://localhost:8082}
+
+app:
+  security:
+    # Debe coincidir con el "iss" del token (URL con la que el cliente llama a Keycloak)
+    issuer: ${APP_SECURITY_ISSUER:http://localhost:8180/realms/reto}
+    # URL desde la cual el servicio descarga las llaves publicas
+    jwk-set-uri: ${APP_SECURITY_JWK_SET_URI:http://localhost:8180/realms/reto/protocol/openid-connect/certs}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+

@@ -1,0 +1,14 @@
+# Carpetas de compilación
+**/target/
+*.class
+
+# Archivos de entorno o logs
+*.log
+.DS_Store
+
+# Archivos de IDEs
+.idea/
+*.iml
+.classpath
+.project
+.settings/

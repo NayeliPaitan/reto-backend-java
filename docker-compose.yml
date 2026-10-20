@@ -1,0 +1,144 @@
+services:
+  # Solo el API Gateway (8080) y Keycloak (8180) se publican en el host.
+  # El resto de servicios y las bases de datos son accesibles unicamente por la red interna backend-net.
+
+  # Base de datos propia de Order Service
+  orders-db:
+    image: postgres:15-alpine
+    container_name: orders-db
+    environment:
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_pass
+      POSTGRES_DB: orders_db
+    volumes:
+      - orders_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders_user -d orders_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+  # Base de datos propia de Inventory Service
+  inventory-db:
+    image: postgres:15-alpine
+    container_name: inventory-db
+    environment:
+      POSTGRES_USER: inventory_user
+      POSTGRES_PASSWORD: inventory_pass
+      POSTGRES_DB: inventory_db
+    volumes:
+      - inventory_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory_user -d inventory_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+  # Servidor de autenticacion (OAuth 2.0 / OpenID Connect)
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+  # Microservicio de Inventario
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://inventory-db:5432/inventory_db
+      - SPRING_DATASOURCE_USERNAME=inventory_user
+      - SPRING_DATASOURCE_PASSWORD=inventory_pass
+      - APP_SECURITY_ISSUER=http://localhost:8180/realms/reto
+      - APP_SECURITY_JWK_SET_URI=http://keycloak:8080/realms/reto/protocol/openid-connect/certs
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    restart: on-failure
+    networks:
+      - backend-net
+
+  # Microservicio de Pedidos
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://orders-db:5432/orders_db
+      - SPRING_DATASOURCE_USERNAME=orders_user
+      - SPRING_DATASOURCE_PASSWORD=orders_pass
+      - APP_SECURITY_ISSUER=http://localhost:8180/realms/reto
+      - APP_SECURITY_JWK_SET_URI=http://keycloak:8080/realms/reto/protocol/openid-connect/certs
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+    depends_on:
+      orders-db:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    restart: on-failure
+    networks:
+      - backend-net
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - ORDER_SERVICE_URL=http://order-service:8081
+      - INVENTORY_SERVICE_URL=http://inventory-service:8082
+      - APP_SECURITY_ISSUER=http://localhost:8180/realms/reto
+      - APP_SECURITY_JWK_SET_URI=http://keycloak:8080/realms/reto/protocol/openid-connect/certs
+    depends_on:
+      order-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    restart: on-failure
+    networks:
+      - backend-net
+
+volumes:
+  orders_db_data:
+  inventory_db_data:
+
+networks:
+  backend-net:
+    driver: bridge

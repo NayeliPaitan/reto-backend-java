@@ -1,0 +1,16 @@
+# Opcional, SOLO para desarrollo local (no usar en la entrega/produccion):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# Publica en el host los servicios internos y las bases de datos para depurarlos.
+services:
+  orders-db:
+    ports:
+      - "5433:5432"
+  inventory-db:
+    ports:
+      - "5434:5432"
+  order-service:
+    ports:
+      - "8081:8081"
+  inventory-service:
+    ports:
+      - "8082:8082"

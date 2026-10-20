@@ -1,0 +1,37 @@
+{
+  "realm": "reto",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "accessTokenLifespan": 3600,
+  "clients": [
+    {
+      "clientId": "reto-client",
+      "name": "Reto Postman Client",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true
+    }
+  ],
+  "users": [
+    {
+      "username": "nayeli",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Nayeli",
+      "lastName": "Reto",
+      "email": "nayeli@reto.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "nayeli123",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
